@@ -1,17 +1,10 @@
 # maildir2mbox
 
-Author: Jonathan Clarke <jonathan.clarke@normation.com>
 License: BSD (see full license in LICENSE file)
 
-## Dependencies
+Author: Jonathan Clarke <jonathan.clarke@normation.com>
 
-This script relies on a little perl script, having a few dependencies: Date::Time and DateTime::Format::Mail
-
-On an APT based distribution, you can install them like this:
-
-    # apt-get install libdatetime-perl libdatetime-format-mail-perl
-
-Of course, you can use aptitude the same way if you want.
+Contributions by Matthieu "Kegeruneku" Cerda
 
 ## Presentation
 
@@ -27,6 +20,16 @@ Currently, it's extremely simple and can be largely improved, but it did the job
 
 This script runs through all files in a maildir, and collects the From email address and Date from the corresponding headers. It then converts the date to the appropriate format for mbox, and outputs a "mbox header line" ("From  sender@email.com  date") followed by the email and a blank line.
 
+## Dependencies
+
+This script relies on a little Perl script, that has a few dependencies: Date::Time and DateTime::Format::Mail
+
+On an APT based distribution, you can install them like this:
+
+    # apt-get install libdatetime-perl libdatetime-format-mail-perl
+
+Of course, you can use aptitude the same way if you want.
+
 ## Usage
 
     $ cd /path/to/your/source/maildir
@@ -34,9 +37,9 @@ This script runs through all files in a maildir, and collects the From email add
 
 Note: The path to the accompanying script "dateRfc3339ToMbox.pl" should be autodetected by maildir2mbox, however if you are using a BSD based system, or you separated maildir2mbox from it, you might want to force the path to this script because the autodetection is likely to fail.
 
-## Exemple
+## Example
 
-This is how the operation is done on a Postfix+Courier setup generated maildir, it should be relatively the same on any other standard SMTP+IMAP setup:
+This is how the operation is done on a Postfix+Courier setup generated maildir, it should be relatively similar on any other standard SMTP+IMAP setup:
 
     $ tar zvxf my-maildir-export.tar.gz
     $ cd my-maildir-export
