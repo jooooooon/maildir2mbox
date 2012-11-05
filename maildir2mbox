@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# This nested command will extract the base directory where this script
+# is located, wherever the current directory is.
+# This is likely not to work on BSD based UNIXes, like Mac OS X or
+# Net/Open/Free/Dragonfly/*BSD.
+# In case it fails, please define manually the path to dateRfc3339ToMbox.pl
+# below.
+SCRIPTPATH=$(dirname "$(readlink -f "${0}")")
+
+# Please define this manually in case autodetection fails.
+DATESCRIPT="${SCRIPTPATH}/dateRfc3339ToMbox.pl"
+
 TOTAL=$(($(ls -l | wc -l)-1))
 COUNT=0
 LASTPERCENT=0
@@ -10,45 +21,45 @@ echo "Starting up, found $TOTAL emails" >&2
 for i in *
 do
 	# Work out progress and display
-	COUNT=$(($COUNT+1))
-	PERCENT=$(($COUNT*100/$TOTAL))
-	if [ $PERCENT -gt $LASTPERCENT ]; then
-		LASTPERCENT=$PERCENT
-		echo -en "\rConverting: $PERCENT% done" >&2 
+	COUNT=$((${COUNT}+1))
+	PERCENT=$((${COUNT}*100/${TOTAL}))
+	if [ ${PERCENT} -gt ${LASTPERCENT} ]; then
+		LASTPERCENT=${PERCENT}
+		echo -en "\rConverting: ${PERCENT}% done" >&2
 	fi
 
 	# Use a temporary file to store the email, putting all headers on one line each (no line wrapping)
 	TMPFILE=$(mktemp)
-	cat $i | perl -p0e 's/\n[\t ]+/ /g' > $TMPFILE
-	
+	cat ${i} | perl -p0e 's/\n[\t ]+/ /g' > ${TMPFILE}
+
 	# Parse the email file
 	while read line
 	do
 		# Ignore anything after the header
-		if [ "a$line" == "a" ]; then break; fi
+		if [ "a${line}" == "a" ]; then break; fi
 
 		# Catch the From email address
-		echo $line | grep "^From:" > /dev/null
-		if [ $? -eq 0 ]; then
-			MAILADDR=$(echo $line | sed "s/^From: //" | sed "s/^[^<]*<\(.\+@.\+\)>/\1/")
+		echo ${line} | grep "^From:" > /dev/null
+		if [ ${?} -eq 0 ]; then
+			MAILADDR=$(echo ${line} | sed "s/^From: //" | sed "s/^[^<]*<\(.\+@.\+\)>/\1/")
 		fi
 
 		# Catch the Date
-		echo $line | grep "^Date:" > /dev/null
-		if [ $? -eq 0 ]; then
-			DATE=$(echo $line | sed "s/^Date: //")
+		echo ${line} | grep "^Date:" > /dev/null
+		if [ ${?} -eq 0 ]; then
+			DATE=$(echo ${line} | sed "s/^Date: //")
 
 			# Convert the date
-			DATE=$(/root/scripts/dateRfc3339ToMbox.pl "$DATE")
+			DATE=$("${DATESCRIPT}" "${DATE}")
 		fi
 
-	done < $TMPFILE
+	done < ${TMPFILE}
 
-	rm $TMPFILE
+	rm ${TMPFILE}
 
 	# Output in mbox format
 	echo "From ${MAILADDR}  ${DATE}"
-	cat $i
+	cat ${i}
 	echo ""
 
 done
